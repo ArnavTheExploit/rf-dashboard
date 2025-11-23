@@ -1,0 +1,5 @@
+{
+  "readings": [
+    {"device_id":"NODE_1","lat":13.135,"lng":77.565,"rf_dbm":-55,"timestamp":1630000000000,"battery":87}
+  ]
+}

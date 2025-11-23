@@ -1,5 +1,11 @@
+/* -------------------------------------- */
+/* Tailwind Base                          */
+/* -------------------------------------- */
 @import "tailwindcss";
 
+/* -------------------------------------- */
+/* Light/Dark Theme Variables              */
+/* -------------------------------------- */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -8,10 +14,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,8 +24,168 @@
   }
 }
 
-body {
+/* -------------------------------------- */
+/* Base Body Styles                        */
+/* -------------------------------------- */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Smooth font rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* -------------------------------------- */
+/* Leaflet Map Fixes                       */
+/* -------------------------------------- */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Remove blue highlights on mobile */
+.leaflet-container {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* -------------------------------------- */
+/* Pulsing Live Marker Animation           */
+/* -------------------------------------- */
+.live-pulse {
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.live-pulse::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #06b6d4;
+  border-radius: 9999px;
+  animation: pulse 1.6s infinite;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.7);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* -------------------------------------- */
+/* Scrollbar (Modern & Clean)              */
+/* -------------------------------------- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* -------------------------------------- */
+/* Utility Tweaks                          */
+/* -------------------------------------- */
+.map-container {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+/* --------------------------- */
+/* Snowfall Effect             */
+/* --------------------------- */
+#snow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.snowflake {
+  position: fixed;
+  top: -10px;
+  color: white;
+  font-size: 1em;
+  opacity: 0.8;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) translateX(20px);
+    opacity: 0.2;
+  }
+}
+
+/* --------------------------- */
+/* Fog Effect                  */
+/* --------------------------- */
+#fog {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: url("/background.jpg") repeat-x;
+  opacity: 0.15;
+  filter: blur(40px);
+  animation: fogMove 60s linear infinite;
+  z-index: 10;
+}
+
+@keyframes fogMove {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* --------------------------- */
+/* Fade-in animation           */
+/* --------------------------- */
+.fade-in {
+  animation: fadeIn 2.2s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

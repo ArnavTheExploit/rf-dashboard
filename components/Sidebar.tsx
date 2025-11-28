@@ -1,95 +1,104 @@
-import React from "react";
-import { Battery50Icon, ClockIcon, MapPinIcon } from "@heroicons/react/24/solid";
+'use client';
 
-type Latest = {
-  device_id?: string;
-  rf_dbm?: number;
-  lat?: number;
-  lng?: number;
-  timestamp?: number;
-  battery?: number; // optional if you add it later
-};
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-type Props = {
-  latest?: Latest;
-  status?: "online" | "offline" | "idle";
-};
+const navItems = [
+  {
+    name: 'The Realm', path: '/', icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+      </svg>
+    )
+  },
+  {
+    name: 'Selection', path: '/selection', icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 3 3 0 0 0 3.78 3.78 3 3 0 0 0 5.78-1.128M9.53 16.122A3 3 0 0 1 12 15.75a3 3 0 0 1 2.47 1.372M9.53 16.122a3 3 0 0 0-3.78-3.78 3 3 0 0 0-1.128 5.78m14.47-2a3 3 0 0 0 5.78-1.128 3 3 0 0 0-3.78-3.78 3 3 0 0 0-1.128 5.78m-9.47 0a3 3 0 0 1-2.47-1.372M15 7.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      </svg>
+    )
+  },
+  {
+    name: 'War Room', path: '/dashboard', icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+      </svg>
+    )
+  },
+  {
+    name: 'Heatmap', path: '/heatmap', icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+      </svg>
+    )
+  },
+  {
+    name: 'Graphs', path: '/graphs', icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+      </svg>
+    )
+  },
+  {
+    name: 'Devices', path: '/devices', icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+      </svg>
+    )
+  },
+  {
+    name: 'Analytics', path: '/analytics', icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+      </svg>
+    )
+  },
+];
 
-export default function Sidebar({ latest, status = "idle" }: Props) {
-  const lastSeen = latest?.timestamp
-    ? new Date(latest.timestamp).toLocaleString()
-    : "--";
+export default function Sidebar() {
+  const pathname = usePathname();
 
   return (
-    <aside className="w-80 bg-linear-to-b from-slate-900 to-slate-800 text-white p-6 flex flex-col gap-6 shadow-xl">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">RF Monitor</h1>
-        <p className="text-sm text-slate-300 mt-1">Campus heatmap · Live</p>
+    <aside className="fixed left-0 top-0 h-screen w-20 md:w-64 bg-[#0a0a0a] border-r border-slate-800 flex flex-col z-50 transition-all duration-300">
+      {/* Logo Area */}
+      <div className="h-20 flex items-center justify-center md:justify-start md:px-6 border-b border-slate-800 bg-linear-to-b from-slate-900 to-transparent">
+        <div className="w-10 h-10 bg-linear-to-br from-cyan-900 to-slate-900 rounded-lg border border-cyan-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+          <span className="text-cyan-400 font-bold text-xl">V</span>
+        </div>
+        <span className="hidden md:block ml-3 font-bold text-lg tracking-widest text-slate-200 uppercase">VantEdge</span>
       </div>
 
-      <div className="mt-2">
-        <div className="flex items-center gap-2">
-          <span
-            className={`h-3 w-3 rounded-full ${
-              status === "online" ? "bg-green-400" : status === "offline" ? "bg-red-500" : "bg-yellow-400"
-            }`}
-            aria-hidden
-          />
-          <p className="text-sm text-slate-300">Status: <span className="font-medium text-white ml-1">{status}</span></p>
+      {/* Navigation */}
+      <nav className="flex-1 py-6 space-y-2 px-2">
+        {navItems.map((item) => {
+          const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`flex items-center justify-center md:justify-start px-4 py-3 rounded-lg transition-all duration-300 group relative overflow-hidden ${isActive
+                ? 'bg-linear-to-rrom-cyan-900/20 to-transparent text-cyan-400 border border-cyan-500/20'
+                : 'text-slate-500 hover:text-slate-200 hover:bg-slate-900/50'
+                }`}
+            >
+              {isActive && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500 shadow-[0_0_10px_cyan]"></div>
+              )}
+              <div className="relative z-10 flex items-center">
+                {item.icon}
+                <span className="hidden md:block ml-3 font-medium tracking-wide">{item.name}</span>
+              </div>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Footer / Status */}
+      <div className="p-4 border-t border-slate-800 bg-linear-to-t from-slate-900 to-transparent">
+        <div className="flex items-center justify-center md:justify-start gap-3">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_emerald]"></div>
+          <span className="hidden md:block text-xs text-slate-400 uppercase tracking-wider">System Online</span>
         </div>
-      </div>
-
-      <div className="flex flex-col gap-4">
-        {/* Device Card */}
-        <div className="p-4 bg-slate-800/60 rounded-xl backdrop-blur-sm border border-slate-700">
-          <p className="text-xs text-slate-300">Device ID</p>
-          <p className="text-lg font-semibold">{latest?.device_id ?? "NODE_1"}</p>
-        </div>
-
-        {/* RF Power Card */}
-        <div className="p-4 bg-slate-800/60 rounded-xl border border-slate-700">
-          <p className="text-xs text-slate-300">RF Power (dBm)</p>
-          <p className="text-3xl font-extrabold">{latest?.rf_dbm ?? "--"}</p>
-          <div className="mt-2 h-1 bg-slate-700 rounded-full overflow-hidden">
-            {/* visual bar: map -120..-20 to 0..100 */}
-            <div
-              style={{
-                width: `${Math.max(0, Math.min(100, ((latest?.rf_dbm ?? -120) + 120) / (100) * 100))}%`,
-              }}
-              className={`h-1 bg-linear-to-r from-indigo-400 to-cyan-300 transition-all duration-300`}
-            />
-          </div>
-          <p className="text-xs text-slate-400 mt-1">Higher = stronger noise</p>
-        </div>
-
-        {/* GPS Card */}
-        <div className="p-4 bg-slate-800/60 rounded-xl border border-slate-700 flex items-center gap-3">
-          <MapPinIcon className="h-6 w-6 text-cyan-300" />
-          <div>
-            <p className="text-xs text-slate-300">Coordinates</p>
-            <p className="text-sm">{latest?.lat ?? "--"}, {latest?.lng ?? "--"}</p>
-          </div>
-        </div>
-
-        {/* Timestamp + battery */}
-        <div className="p-4 bg-slate-800/60 rounded-xl border border-slate-700 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <ClockIcon className="h-5 w-5 text-slate-300" />
-            <div>
-              <p className="text-xs text-slate-300">Last Update</p>
-              <p className="text-sm">{lastSeen}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Battery50Icon className="h-6 w-6 text-green-400" />
-            <p className="text-sm">{latest?.battery ? `${latest.battery}%` : "—"}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-auto text-xs text-slate-400">
-        <p>Tip: Zoom & pan the map to inspect hotspots</p>
       </div>
     </aside>
   );

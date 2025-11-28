@@ -1,126 +1,137 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import axios from "axios";
-import Sidebar from "@/components/Sidebar";
-import Heatmap from "@/components/Heatmap";
+import dynamic from 'next/dynamic';
+import StatsPanel from '@/components/StatsPanel';
+import { useRFData } from '@/hooks/useRFData';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+import Snowfall from '@/components/Snowfall';
+import { useVoiceAssistant, ExplainButton, generateExplanation } from '@/components/VoiceAssistant';
 
-type Reading = {
-  device_id: string;
-  lat: number;
-  lng: number;
-  rf_dbm: number;
-  timestamp: number;
-  battery?: number;
-};
+// Dynamically import MapComponent to avoid SSR issues with Leaflet
+const MapComponent = dynamic(() => import('@/components/MapComponent'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-slate-900/50 rounded-xl animate-pulse">
+      <p className="text-cyan-400">Loading RF Map...</p>
+    </div>
+  ),
+});
 
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000";
+function DashboardContent() {
+  const { data, status } = useRFData();
+  const searchParams = useSearchParams();
+  const selectedParam = searchParams.get('param') || 'rssi';
+  const { speak, isSpeaking } = useVoiceAssistant();
 
-export default function Page() {
-  const [data, setData] = useState<Reading[]>([]);
-  const [status, setStatus] = useState<"online" | "offline" | "idle">("idle");
-  const [lastFetch, setLastFetch] = useState<number | null>(null);
+  const paramLabels: Record<string, string> = {
+    rssi: 'Signal Strength',
+    noise: 'Noise Floor',
+    frequency: 'Frequency'
+  };
 
-  // Mock fallback for frontend testing
-  const mockData: Reading[] = [
-    {
-      device_id: "NODE_1",
-      lat: 13.135,
-      lng: 77.565,
-      rf_dbm: -55,
-      timestamp: Date.now(),
-      battery: 87,
-    },
-    {
-      device_id: "NODE_2",
-      lat: 13.136,
-      lng: 77.566,
-      rf_dbm: -72,
-      timestamp: Date.now(),
-      battery: 64,
-    },
-    {
-      device_id: "NODE_3",
-      lat: 13.134,
-      lng: 77.564,
-      rf_dbm: -43,
-      timestamp: Date.now(),
-      battery: 92,
-    },
-  ];
+  const handleExplainStats = () => {
+    if (data.length === 0) {
+      speak('No data available to explain.');
+      return;
+    }
 
-  useEffect(() => {
-    let mounted = true;
+    const avgRssi = data.reduce((acc, curr) => acc + curr.rssi, 0) / data.length;
+    const avgNoise = data.reduce((acc, curr) => acc + curr.noise_floor, 0) / data.length;
+    const avgSnr = data.reduce((acc, curr) => acc + (curr.snr || (curr.rssi - curr.noise_floor)), 0) / data.length;
 
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(`${BACKEND}/api/getData`, { timeout: 3000 });
-        if (!mounted) return;
+    const explanation = `
+      Current RF statistics overview. 
+      ${generateExplanation('rssi_trend', { avgRssi })}
+      ${generateExplanation('noise_floor', { noiseFloor: avgNoise })}
+      ${generateExplanation('snr', { snr: avgSnr })}
+      You are viewing ${data.length} total readings from ${new Set(data.map(d => d.device_id)).size} active devices.
+    `;
+    speak(explanation);
+  };
 
-        setData(res.data);
-        setStatus("online");
-        setLastFetch(Date.now());
-      } catch (err) {
-        if (!mounted) return;
+  const handleExplainMap = () => {
+    if (data.length === 0) {
+      speak('No heatmap data available to explain.');
+      return;
+    }
 
-        // fallback when backend not running
-        setData(mockData);
-        setStatus("offline");
-      }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 2000);
-
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, []);
-
-  const latest = data[data.length - 1];
-
-  // heatmap format → [lat, lng, intensity]
-  const heatPoints = data.map((p) => {
-    const intensity = Math.max(0.05, (90 + p.rf_dbm) / 90); // normalize dBm → 0-1
-    return [p.lat, p.lng, intensity] as [number, number, number];
-  });
+    const explanation = generateExplanation('heatmap_region', {
+      intensity: 0.7,
+      pointCount: data.length,
+    });
+    speak(`Heatmap overview. ${explanation} The color intensity represents ${paramLabels[selectedParam]}. Red and yellow areas indicate stronger values, while blue areas show weaker readings.`);
+  };
 
   return (
-    <div className="flex h-screen bg-gray-50 text-gray-900">
-      {/* Sidebar */}
-      <Sidebar latest={latest} status={status} />
+    <div className="min-h-screen text-white flex flex-col relative overflow-hidden">
+      {/* GOT Winter Background */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-20 z-0"
+        style={{ backgroundImage: 'url(/background-got.jpg)' }}
+      />
+      <div className="absolute inset-0 bg-linear-to-b from-slate-900/95 via-slate-800/90 to-slate-900/95 z-0" />
+      <Snowfall />
+      
+      {/* House VantEdge Crest Header */}
+      <header className="glass-header sticky top-0 z-40 px-6 py-4 flex justify-between items-center bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20 shadow-[0_4px_20px_rgba(6,182,212,0.1)]">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-linear-to-br from-cyan-500/20 to-slate-800/80 border-2 border-cyan-400/50 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm">
+            <span className="text-cyan-300 font-bold text-2xl">V</span>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-300 via-blue-300 to-cyan-400 bg-clip-text text-transparent">
+              House VantEdge
+            </h1>
+            <p className="text-xs text-cyan-400/80 font-medium tracking-wide uppercase">
+              War Room • RF Noise Mapping • <span className="text-white">{paramLabels[selectedParam]}</span>
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-cyan-500/30">
+            <div className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_emerald]' : 'bg-red-400'} `}></div>
+            <span className="text-xs text-slate-300">{status === 'online' ? 'Live Feed' : 'Offline Mode'}</span>
+          </div>
+          <button className="bg-cyan-600/20 hover:bg-cyan-600/40 border border-cyan-500/50 text-cyan-400 px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+            Export Intel
+          </button>
+        </div>
+      </header>
 
-      {/* Main area */}
-      <main className="flex-1 p-6 flex flex-col gap-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">RF Noise Heatmap — Campus</h1>
+      {/* Main Content */}
+      <main className="flex-1 p-4 md:p-6 flex flex-col gap-6 overflow-hidden relative z-10">
 
-          <div className="text-sm text-slate-600 flex items-center gap-6">
-            {status === "online" ? (
-              <span className="inline-flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                Live
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-red-400" />
-                Offline (mock)
-              </span>
-            )}
+        {/* Stats Row */}
+        <div className="shrink-0 relative">
+          <div className="absolute top-2 right-2 z-10">
+            <ExplainButton onClick={handleExplainStats} isSpeaking={isSpeaking} size="sm" />
+          </div>
+          <StatsPanel data={data} />
+        </div>
 
-            <span className="text-xs text-slate-500">
-              {lastFetch ? `Updated at ${new Date(lastFetch).toLocaleTimeString()}` : ""}
-            </span>
+        {/* Map Container - Full Height */}
+        <div className="flex-1 glass-panel-got rounded-2xl p-1 relative group border-cyan-500/30 min-h-[500px] shadow-[0_0_30px_rgba(6,182,212,0.2)] flex flex-col">
+          <div className="absolute top-4 right-4 z-[1000] flex items-center gap-2">
+            <ExplainButton onClick={handleExplainMap} isSpeaking={isSpeaking} size="sm" />
+            <div className="bg-slate-900/90 backdrop-blur text-xs px-3 py-1 rounded-md border border-cyan-500/30 text-cyan-400 shadow-lg">
+              Sector: Winterfell
+            </div>
+          </div>
+          <div className="flex-1 w-full h-full relative" style={{ minHeight: '500px' }}>
+            <MapComponent data={data} selectedParam={selectedParam} />
           </div>
         </div>
 
-        {/* Heatmap */}
-        <div className="rounded-2xl shadow-lg bg-white h-[75vh] overflow-hidden border border-gray-200">
-          <Heatmap points={heatPoints} />
-        </div>
       </main>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#050505] flex items-center justify-center text-cyan-500">Initializing Dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

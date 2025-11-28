@@ -41,7 +41,13 @@ function HeatLayer({ points }: HeatmapProps) {
   useEffect(() => {
     if (!points || points.length === 0) return;
 
-    const heat = (L as any).heatLayer(points as LatLngExpression[], {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!(L as any).heatLayer) {
+      console.error('Leaflet.heat plugin not loaded');
+      return;
+    }
+
+    const heat = L.heatLayer(points as LatLngExpression[], {
       radius: 35,
       blur: 20,
       maxZoom: 18,
@@ -49,8 +55,10 @@ function HeatLayer({ points }: HeatmapProps) {
 
     heat.addTo(map);
 
-    return () => heat.remove();
-  }, [points]);
+    return () => {
+      heat.remove();
+    };
+  }, [points, map]);
 
   return null;
 }

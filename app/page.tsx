@@ -1,113 +1,45 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect } from "react";
+import Link from 'next/link';
+import Snowfall from '@/components/Snowfall';
+import AudioPlayer from '@/components/AudioPlayer';
 
 export default function LandingPage() {
-
-  // AUDIO + SNOW INIT
-  useEffect(() => {
-    // GOT THEME AUDIO
-    const audio = new Audio("/got-theme.mp3");
-    audio.volume = 0;
-    audio.loop = true;
-    audio.play().catch(() => {});
-    
-    // Fade in volume
-    let vol = 0;
-    const fade = setInterval(() => {
-      if (vol < 0.35) {
-        vol += 0.02;
-        audio.volume = vol;
-      } else {
-        clearInterval(fade);
-      }
-    }, 200);
-
-    // SNOW EFFECT
-    const snow = document.getElementById("snow");
-    if (snow) {
-      for (let i = 0; i < 60; i++) {
-        const flake = document.createElement("div");
-        flake.className = "snowflake";
-        flake.textContent = "•";
-        flake.style.left = Math.random() * 100 + "vw";
-        flake.style.fontSize = Math.random() * 10 + 8 + "px";
-        flake.style.animationDuration = Math.random() * 5 + 5 + "s";
-        flake.style.animationDelay = Math.random() * 5 + "s";
-        snow.appendChild(flake);
-      }
-    }
-
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-    };
-  }, []);
-
   return (
-    <div className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black">
+    <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center relative overflow-hidden">
+      <Snowfall />
+      <AudioPlayer />
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-[url('/background-got.jpg')] bg-cover bg-center opacity-60"></div>
+      <div className="absolute inset-0 bg-linear-to-t from-[#050505] via-[#050505]/60 to-transparent"></div>
 
-      {/* BACKGROUND IMAGE */}
-      <Image
-        src="/background.jpg"
-        alt="Castle Background"
-        fill
-        className="object-cover opacity-50 blur-[1px]"
-        priority
-      />
+      {/* Content */}
+      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <div className="mb-8 animate-fade-in-up">
+          <h2 className="text-cyan-500 font-medium tracking-[0.5em] uppercase text-xs sm:text-sm md:text-base mb-4">Winter of Projects</h2>
+          <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold tracking-tighter text-transparent bg-clip-text bg-linear-to-b from-white to-slate-500 mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+            VANTEDGE
+          </h1>
+          <p className="text-slate-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed px-2">
+            The night is dark and full of noise. We map the invisible spectrum to bring order to the chaos.
+            <br />
+            <span className="text-cyan-400/80 italic mt-2 block">RF Noise Mapping System</span>
+          </p>
+        </div>
 
-      {/* FOG */}
-      <div id="fog" />
-
-      {/* DARK OVERLAY */}
-      <div className="absolute inset-0 bg-black/60 z-10" />
-
-      {/* SNOW */}
-      <div id="snow" />
-
-      {/* CONTENT */}
-      <div className="relative z-20 flex flex-col items-center text-center text-white gap-6 fade-in">
-
-        {/* WOP LOGO */}
-        <Image
-          src="/WOP_WLOGO.png"
-          alt="Winter Of Projects Logo"
-          width={600}
-          height={300}
-          className="drop-shadow-2xl fade-in"
-        />
-
-        {/* CURVED VANTEDGE LOGO */}
-        <Image
-          src="/vantedge-logo.png"
-          alt="VantEdge Logo"
-          width={260}
-          height={260}
-          className="drop-shadow-2xl fade-in rounded-3xl"
-        />
-
-        {/* TRANSPARENT BUTTON */}
         <Link
-          href="/dashboard"
-          className="
-            px-10 py-2 
-            border border-white/70 
-            text-white 
-            text-xl 
-            rounded-xl 
-            font-semibold 
-            shadow-2xl 
-            transition-all 
-            fade-in
-            hover:bg-white/10
-            backdrop-blur-sm
-          "
+          href="/selection"
+          className="group relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-bold text-white transition-all duration-300 bg-transparent border-2 border-slate-700 hover:border-cyan-500 rounded-none uppercase tracking-widest overflow-hidden"
         >
-          Next →
+          <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-linear-to-b from-transparent via-transparent to-cyan-900"></span>
+          <span className="relative z-10 group-hover:text-cyan-400 transition-colors duration-300">Enter the Realm</span>
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-0 bg-cyan-500/10 transition-transform duration-500 ease-out"></div>
         </Link>
+      </div>
 
+      {/* Footer / Credits */}
+      <div className="absolute bottom-8 text-center w-full text-slate-600 text-xs tracking-widest uppercase">
+        Forged by Team VantEdge • IEEE WOP
       </div>
     </div>
   );

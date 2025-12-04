@@ -124,7 +124,7 @@ function HeatmapContent() {
           <div className="absolute top-4 right-4 z-400 flex items-center gap-2">
             <ExplainButton onClick={handleExplainHeatmap} isSpeaking={isSpeaking} size="sm" />
             <div className="bg-slate-900/90 backdrop-blur text-xs px-3 py-1 rounded-md border border-cyan-500/30 text-cyan-400 shadow-lg">
-              Sector: Winterfell
+              Sector: BMSIT&M
             </div>
           </div>
           <MapComponent data={data} selectedParam="rssi" />

@@ -119,7 +119,7 @@ function DashboardContent() {
           <div className="absolute top-4 right-4 z-[1000] flex items-center gap-2">
             <ExplainButton onClick={handleExplainMap} isSpeaking={isSpeaking} size="sm" />
             <div className="bg-slate-900/90 backdrop-blur text-xs px-3 py-1 rounded-md border border-cyan-500/30 text-cyan-400 shadow-lg">
-              Sector: Winterfell
+              Sector: BMSIT&M
             </div>
           </div>
           <div className="flex-1 w-full h-full relative" style={{ minHeight: '500px' }}>

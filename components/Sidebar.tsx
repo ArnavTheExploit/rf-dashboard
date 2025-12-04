@@ -128,6 +128,9 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_emerald] shrink-0"></div>
             <span className="text-xs text-slate-400 uppercase tracking-wider">System Online</span>
           </div>
+          <div className="mt-4 pt-4 border-t border-slate-800/50 text-[10px] text-slate-600 font-medium">
+            © 2025 VantEdge. All rights reserved.
+          </div>
         </div>
       </aside>
     </>

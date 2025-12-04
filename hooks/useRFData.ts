@@ -24,19 +24,23 @@ export function useRFData() {
                     // Fallback to backend if Next.js API fails
                     res = await axios.get(`${BACKEND_URL}/api/rf/all`, { timeout: 3000 });
                 }
-                
+
                 if (!mounted) return;
 
                 // Normalize backend data if needed
                 const normalizedData = res.data.map((item: any) => ({
                     ...item,
-                    timestamp: new Date(item.timestamp).toISOString(), // Convert to string
-                    id: item.id || item._id || Math.random().toString(36).substr(2, 9), // Ensure ID exists
-                    rssi: item.rssi || item.rf_dbm, // Ensure rssi field exists for frontend components
-                    rf_dbm: item.rf_dbm || item.rssi, // Ensure rf_dbm exists
-                    frequency: item.frequency || 2412, // Default freq if missing
-                    noise_floor: item.noise_floor || -100, // Default noise floor if missing
-                    snr: item.snr || (item.rssi - (item.noise_floor || -100)), // Calculate SNR if missing
+                    timestamp: new Date(item.timestamp).toISOString(),
+                    id: item.id || item.device_id || Math.random().toString(36).substr(2, 9),
+                    device_name: item.device_name || 'Unknown Device',
+                    lat: item.lat || item.latitude,
+                    lng: item.lng || item.longitude,
+                    rssi: item.rssi || item.rf_dbm,
+                    rf_dbm: item.rf_dbm || item.rssi,
+                    frequency: item.frequency || 2412,
+                    noise_floor: item.noise_floor || -100,
+                    snr: item.snr || (item.signal_strength ? item.signal_strength / 2 : 0), // Approx SNR from signal strength
+                    battery: item.battery || item.battery_percentage,
                 }));
 
                 setData(normalizedData);
@@ -47,7 +51,16 @@ export function useRFData() {
                 console.warn('Backend unreachable, using mock data');
 
                 // Use mock data as fallback
-                setData(mockData as any);
+                const normalizedMockData = (mockData as any[]).map(item => ({
+                    ...item,
+                    id: item.device_id,
+                    lat: item.latitude,
+                    lng: item.longitude,
+                    battery: item.battery_percentage,
+                    rf_dbm: item.rssi, // Map RSSI to rf_dbm if missing
+                    snr: item.signal_strength ? item.signal_strength / 2 : 0
+                }));
+                setData(normalizedMockData as any);
                 setStatus('offline');
             }
         };

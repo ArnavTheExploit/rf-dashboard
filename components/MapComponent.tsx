@@ -256,12 +256,13 @@ const RelocateControl = ({ data }: { data: RFReading[] }) => {
         const nextIndex = (currentIndex + 1) % data.length;
         const point = data[nextIndex];
 
-        map.flyTo([point.lat, point.lng], 18, {
-            duration: 1.5,
-            easeLinearity: 0.25
-        });
-
-        setCurrentIndex(nextIndex);
+        if (point.lat !== undefined && point.lng !== undefined) {
+            map.flyTo([point.lat, point.lng], 18, {
+                duration: 1.5,
+                easeLinearity: 0.25
+            });
+            setCurrentIndex(nextIndex);
+        }
     };
 
     return (
@@ -306,6 +307,7 @@ function PopupContent({ point }: { point: RFReading }) {
                     {isSpeaking ? '🗣...' : '🗣 Explain'}
                 </button>
             </div>
+            <p className="font-semibold text-cyan-300 mb-1">{point.device_name || 'Unknown Location'}</p>
             <p>Device: {point.device_id}</p>
             <p>Freq: {point.frequency} MHz</p>
             <p>RSSI: {point.rssi} dBm</p>
@@ -317,30 +319,32 @@ function PopupContent({ point }: { point: RFReading }) {
 }
 
 export default function MapComponent({ data, selectedParam = 'rssi' }: MapComponentProps) {
-    const center = data.length > 0
+    const center = (data.length > 0 && data[0].lat !== undefined && data[0].lng !== undefined)
         ? [data[0].lat, data[0].lng] as [number, number]
-        : [28.6139, 77.2090] as [number, number];
+        : [13.1335, 77.5684] as [number, number];
 
     // Convert data to heatmap points: [lat, lng, intensity]
-    const heatPoints = data.map(d => {
-        let intensity = 0;
+    const heatPoints = data
+        .filter(d => d.lat !== undefined && d.lng !== undefined)
+        .map(d => {
+            let intensity = 0;
 
-        if (selectedParam === 'noise') {
-            // Noise floor: -120 (quiet) to -80 (loud)
-            // Normalize: -120 -> 0, -80 -> 1
-            intensity = Math.max(0, (d.noise_floor + 120) / 40);
-        } else if (selectedParam === 'frequency') {
-            // Frequency: 2400 to 2500 MHz
-            // Normalize: 2400 -> 0, 2500 -> 1
-            intensity = Math.max(0, (d.frequency - 2400) / 100);
-        } else {
-            // RSSI (default): -90 (weak) to -30 (strong)
-            // Normalize: -90 -> 0.1, -30 -> 1.0
-            intensity = Math.max(0, (d.rssi + 100) / 70);
-        }
+            if (selectedParam === 'noise') {
+                // Noise floor: -120 (quiet) to -80 (loud)
+                // Normalize: -120 -> 0, -80 -> 1
+                intensity = Math.max(0, (d.noise_floor + 120) / 40);
+            } else if (selectedParam === 'frequency') {
+                // Frequency: 2400 to 2500 MHz
+                // Normalize: 2400 -> 0, 2500 -> 1
+                intensity = Math.max(0, (d.frequency - 2400) / 100);
+            } else {
+                // RSSI (default): -90 (weak) to -30 (strong)
+                // Normalize: -90 -> 0.1, -30 -> 1.0
+                intensity = Math.max(0, (d.rssi + 100) / 70);
+            }
 
-        return [d.lat, d.lng, intensity] as [number, number, number];
-    });
+            return [d.lat!, d.lng!, intensity] as [number, number, number];
+        });
 
     // Use useEffect to ensure map container has proper dimensions
     const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -444,8 +448,8 @@ export default function MapComponent({ data, selectedParam = 'rssi' }: MapCompon
                 <HeatmapLayer points={heatPoints} />
                 <SearchControl />
                 <RelocateControl data={data} />
-                {data.map((point) => (
-                    <Marker key={point.id} position={[point.lat, point.lng]} icon={customIcon}>
+                {data.filter(p => p.lat !== undefined && p.lng !== undefined).map((point) => (
+                    <Marker key={point.id} position={[point.lat!, point.lng!]} icon={customIcon}>
                         <Popup>
                             <PopupContent point={point} />
                         </Popup>

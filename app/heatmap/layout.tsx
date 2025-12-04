@@ -1,17 +1,9 @@
-import Sidebar from "@/components/Sidebar";
+import PageLayout from "@/components/PageLayout";
 
 export default function HeatmapLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    return (
-        <div className="min-h-screen bg-[#0f172a]">
-            <Sidebar />
-            <div className="md:ml-64 transition-all duration-300">
-                {children}
-            </div>
-        </div>
-    );
+    return <PageLayout>{children}</PageLayout>;
 }
-

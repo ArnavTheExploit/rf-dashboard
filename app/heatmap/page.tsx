@@ -3,7 +3,6 @@
 import dynamic from 'next/dynamic';
 import { useRFData } from '@/hooks/useRFData';
 import { Suspense } from 'react';
-import Snowfall from '@/components/Snowfall';
 import { useVoiceAssistant, ExplainButton, generateExplanation } from '@/components/VoiceAssistant';
 
 // Dynamically import MapComponent to avoid SSR issues with Leaflet
@@ -62,21 +61,20 @@ function HeatmapContent() {
   return (
     <div className="min-h-screen text-white flex flex-col relative overflow-hidden">
       {/* GOT Winter Background */}
-      <div 
+      <div
         className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-20 z-0"
         style={{ backgroundImage: 'url(/background-got.jpg)' }}
       />
       <div className="absolute inset-0 bg-linear-to-b from-slate-900/95 via-slate-800/90 to-slate-900/95 z-0" />
-      <Snowfall />
-      
+
       {/* House VantEdge Crest Header */}
       <header className="glass-header sticky top-0 z-40 px-6 py-4 flex justify-between items-center bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20 shadow-[0_4px_20px_rgba(6,182,212,0.1)]">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 pl-16 md:pl-0">
           <div className="w-16 h-16 rounded-full bg-linear-to-br from-cyan-500/20 to-slate-800/80 border-2 border-cyan-400/50 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm">
             <span className="text-cyan-300 font-bold text-2xl">V</span>
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight bg-linear-to-rrom-cyan-300 via-blue-300 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-400 bg-clip-text text-transparent">
               House VantEdge
             </h1>
             <p className="text-xs text-cyan-400/80 font-medium tracking-wide uppercase">

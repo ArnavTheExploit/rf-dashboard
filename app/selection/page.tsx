@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { Activity, Radio, Wifi, Map, BarChart3, Monitor, LayoutDashboard } from 'lucide-react';
-import Snowfall from '@/components/Snowfall';
 
 export default function SelectionPage() {
     const parameters = [
@@ -79,7 +78,6 @@ export default function SelectionPage() {
                     style={{ backgroundImage: 'url(/background-got.jpg)' }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-900/95 via-slate-800/90 to-slate-900/95 z-0" />
-                <Snowfall />
                 
                 <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
                     <div className="max-w-7xl w-full">

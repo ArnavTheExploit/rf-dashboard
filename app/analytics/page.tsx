@@ -1,14 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import StatsPanel from '@/components/StatsPanel';
 import NoiseChart from '@/components/NoiseChart';
 import { useRFData } from '@/hooks/useRFData';
-import Snowfall from '@/components/Snowfall';
 import { useVoiceAssistant, ExplainButton, generateExplanation } from '@/components/VoiceAssistant';
+import ExportModal from '@/components/ExportModal';
 
 export default function AnalyticsPage() {
     const { data, status } = useRFData();
     const { speak, isSpeaking } = useVoiceAssistant();
+    const [isExportOpen, setIsExportOpen] = useState(false);
 
     const handleExplainAnalytics = () => {
         if (data.length === 0) {
@@ -36,11 +38,10 @@ export default function AnalyticsPage() {
                 style={{ backgroundImage: 'url(/background-got.jpg)' }}
             />
             <div className="absolute inset-0 bg-gradient-to-b from-slate-900/95 via-slate-800/90 to-slate-900/95 z-0" />
-            <Snowfall />
 
             {/* House VantEdge Crest Header */}
             <header className="glass-header sticky top-0 z-40 px-6 py-4 flex justify-between items-center bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20 shadow-[0_4px_20px_rgba(6,182,212,0.1)]">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 pl-16 md:pl-0">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/20 to-slate-800/80 border-2 border-cyan-400/50 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm">
                         <span className="text-cyan-300 font-bold text-2xl">V</span>
                     </div>
@@ -58,7 +59,10 @@ export default function AnalyticsPage() {
                         <div className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_emerald]' : 'bg-red-400'} `}></div>
                         <span className="text-xs text-slate-300">{status === 'online' ? 'Live Feed' : 'Offline Mode'}</span>
                     </div>
-                    <button className="bg-cyan-600/20 hover:bg-cyan-600/40 border border-cyan-500/50 text-cyan-400 px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                    <button
+                        onClick={() => setIsExportOpen(true)}
+                        className="bg-cyan-600/20 hover:bg-cyan-600/40 border border-cyan-500/50 text-cyan-400 px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                    >
                         Export Report
                     </button>
                 </div>
@@ -81,15 +85,15 @@ export default function AnalyticsPage() {
                     <StatsPanel data={data} />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
-                    {/* Charts Column - Takes up 2/3 space on large screens */}
-                    <div className="lg:col-span-2 glass-panel-got rounded-2xl overflow-hidden border border-cyan-500/20 flex flex-col shadow-[0_0_20px_rgba(6,182,212,0.1)]" style={{ minHeight: '500px' }}>
+                <div className="flex flex-col gap-8 flex-1 min-h-0">
+                    {/* Charts Column - Full width and taller */}
+                    <div className="glass-panel-got rounded-2xl overflow-hidden border border-cyan-500/20 flex flex-col shadow-[0_0_20px_rgba(6,182,212,0.1)]" style={{ minHeight: '600px' }}>
                         <div className="p-4 border-b border-cyan-500/20 bg-slate-900/40">
                             <h3 className="text-lg font-semibold text-cyan-300 flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
                                 </svg>
-                                Noise Floor Analysis
+                                Noise Floor & Signal Analysis
                             </h3>
                         </div>
                         <div className="flex-1 p-2">
@@ -97,8 +101,8 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
 
-                    {/* Signal Intercepts Column - Takes up 1/3 space */}
-                    <div className="glass-panel-got rounded-2xl flex flex-col overflow-hidden border border-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.1)]" style={{ maxHeight: '600px' }}>
+                    {/* Signal Intercepts Column - Pushed down */}
+                    <div className="glass-panel-got rounded-2xl flex flex-col overflow-hidden border border-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.1)]" style={{ minHeight: '400px' }}>
                         <div className="p-4 border-b border-cyan-500/20 bg-slate-900/40 sticky top-0 z-10 backdrop-blur-md">
                             <h3 className="text-lg font-semibold flex items-center gap-2 text-cyan-300">
                                 <span className="w-1.5 h-6 bg-cyan-500 rounded-full shadow-[0_0_8px_cyan]"></span>
@@ -119,6 +123,7 @@ export default function AnalyticsPage() {
                                     <div key={idx} className="group flex items-start gap-3 p-3 rounded-lg glass-panel border border-slate-700/50 hover:border-cyan-500/40 hover:bg-slate-800/60 transition-all duration-200">
                                         <div className={`w-2.5 h-2.5 mt-1.5 rounded-full shrink-0 ${item.rssi > -50 ? 'bg-red-500 shadow-[0_0_8px_red]' : 'bg-emerald-500 shadow-[0_0_8px_emerald]'}`}></div>
                                         <div className="flex-1 min-w-0">
+                                            <p className="text-xs text-cyan-400 font-semibold mb-0.5">{item.device_name || 'Unknown Location'}</p>
                                             <div className="flex justify-between items-start">
                                                 <p className="text-sm font-medium text-slate-200 group-hover:text-cyan-300 transition-colors">{item.frequency} MHz</p>
                                                 <span className="text-[10px] text-slate-500 font-mono bg-slate-900/50 px-1.5 py-0.5 rounded border border-slate-800">{new Date(item.timestamp).toLocaleTimeString()}</span>
@@ -137,6 +142,12 @@ export default function AnalyticsPage() {
                 </div>
 
             </main>
+
+            <ExportModal
+                isOpen={isExportOpen}
+                onClose={() => setIsExportOpen(false)}
+                data={data}
+            />
         </div>
     );
 }

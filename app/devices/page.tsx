@@ -2,7 +2,6 @@
 
 import { useRFData } from '@/hooks/useRFData';
 import { Suspense, useMemo } from 'react';
-import Snowfall from '@/components/Snowfall';
 import { RFReading } from '@/types';
 import { useVoiceAssistant, ExplainButton, generateExplanation } from '@/components/VoiceAssistant';
 
@@ -68,7 +67,6 @@ function DevicesContent() {
         style={{ backgroundImage: 'url(/background-got.jpg)' }}
       />
       <div className="absolute inset-0 bg-linear-to-b from-slate-900/95 via-slate-800/90 to-slate-900/95 z-0" />
-      <Snowfall />
       
       {/* House VantEdge Crest Header */}
       <header className="glass-header sticky top-0 z-40 px-6 py-4 flex justify-between items-center bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20 shadow-[0_4px_20px_rgba(6,182,212,0.1)]">

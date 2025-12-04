@@ -1,56 +1,62 @@
 [
   {
-    "id": "1",
-    "timestamp": "2023-10-27T10:00:00Z",
-    "lat": 28.6139,
-    "lng": 77.2090,
-    "frequency": 2412,
-    "rssi": -45,
-    "noise_floor": -95
+    "device_id": "ESP32-001",
+    "device_name": "Lab Block",
+    "latitude": 13.134378751019193,
+    "longitude": 77.56812856333922,
+    "battery_percentage": 66,
+    "noise_floor": -83,
+    "rssi": -53,
+    "signal_strength": 24,
+    "frequency": 2477,
+    "timestamp": "2025-12-04T14:54:33.858Z"
   },
   {
-    "id": "2",
-    "timestamp": "2023-10-27T10:05:00Z",
-    "lat": 28.6142,
-    "lng": 77.2095,
-    "frequency": 2437,
-    "rssi": -60,
-    "noise_floor": -92
+    "device_id": "ESP32-002",
+    "device_name": "BSN Block",
+    "latitude": 13.133985638401002,
+    "longitude": 77.56822378174716,
+    "battery_percentage": 95,
+    "noise_floor": -110,
+    "rssi": -86,
+    "signal_strength": 68,
+    "frequency": 2435,
+    "timestamp": "2025-12-04T14:54:33.859Z"
   },
   {
-    "id": "3",
-    "timestamp": "2023-10-27T10:10:00Z",
-    "lat": 28.6135,
-    "lng": 77.2085,
-    "frequency": 2462,
+    "device_id": "ESP32-003",
+    "device_name": "Kutthera",
+    "latitude": 13.132855667502211,
+    "longitude": 77.56978354579891,
+    "battery_percentage": 76,
+    "noise_floor": -95,
+    "rssi": -83,
+    "signal_strength": 47,
+    "frequency": 2461,
+    "timestamp": "2025-12-04T14:54:33.859Z"
+  },
+  {
+    "device_id": "ESP32-004",
+    "device_name": "Architecture Block",
+    "latitude": 13.13254206947616,
+    "longitude": 77.56854555789828,
+    "battery_percentage": 28,
+    "noise_floor": -89,
     "rssi": -75,
-    "noise_floor": -98
+    "signal_strength": 89,
+    "frequency": 2428,
+    "timestamp": "2025-12-04T14:54:33.859Z"
   },
   {
-    "id": "4",
-    "timestamp": "2023-10-27T10:15:00Z",
-    "lat": 28.6145,
-    "lng": 77.2100,
-    "frequency": 2412,
-    "rssi": -50,
-    "noise_floor": -94
-  },
-  {
-    "id": "5",
-    "timestamp": "2023-10-27T10:20:00Z",
-    "lat": 28.6130,
-    "lng": 77.2080,
-    "frequency": 2437,
-    "rssi": -80,
-    "noise_floor": -90
-  },
-  {
-    "id": "6",
-    "timestamp": "2023-10-27T10:25:00Z",
-    "lat": 28.6148,
-    "lng": 77.2105,
-    "frequency": 2462,
-    "rssi": -55,
-    "noise_floor": -96
+    "device_id": "ESP32-005",
+    "device_name": "Academic Block",
+    "latitude": 13.13364220399856,
+    "longitude": 77.56730263260752,
+    "battery_percentage": 29,
+    "noise_floor": -99,
+    "rssi": -68,
+    "signal_strength": 74,
+    "frequency": 2454,
+    "timestamp": "2025-12-04T14:54:33.859Z"
   }
 ]

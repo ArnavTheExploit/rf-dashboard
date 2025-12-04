@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "RF Noise Mapping System",
   icons: {
     icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
 };
 

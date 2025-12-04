@@ -1,12 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import StatsPanel from '@/components/StatsPanel';
 import { useRFData } from '@/hooks/useRFData';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-import Snowfall from '@/components/Snowfall';
 import { useVoiceAssistant, ExplainButton, generateExplanation } from '@/components/VoiceAssistant';
+import ExportModal from '@/components/ExportModal';
 
 // Dynamically import MapComponent to avoid SSR issues with Leaflet
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
@@ -23,6 +24,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const selectedParam = searchParams.get('param') || 'rssi';
   const { speak, isSpeaking } = useVoiceAssistant();
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   const paramLabels: Record<string, string> = {
     rssi: 'Signal Strength',
@@ -66,16 +68,15 @@ function DashboardContent() {
   return (
     <div className="min-h-screen text-white flex flex-col relative overflow-hidden">
       {/* GOT Winter Background */}
-      <div 
+      <div
         className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-20 z-0"
         style={{ backgroundImage: 'url(/background-got.jpg)' }}
       />
       <div className="absolute inset-0 bg-linear-to-b from-slate-900/95 via-slate-800/90 to-slate-900/95 z-0" />
-      <Snowfall />
-      
+
       {/* House VantEdge Crest Header */}
       <header className="glass-header sticky top-0 z-40 px-6 py-4 flex justify-between items-center bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20 shadow-[0_4px_20px_rgba(6,182,212,0.1)]">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 pl-16 md:pl-0">
           <div className="w-16 h-16 rounded-full bg-linear-to-br from-cyan-500/20 to-slate-800/80 border-2 border-cyan-400/50 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm">
             <span className="text-cyan-300 font-bold text-2xl">V</span>
           </div>
@@ -93,7 +94,10 @@ function DashboardContent() {
             <div className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_emerald]' : 'bg-red-400'} `}></div>
             <span className="text-xs text-slate-300">{status === 'online' ? 'Live Feed' : 'Offline Mode'}</span>
           </div>
-          <button className="bg-cyan-600/20 hover:bg-cyan-600/40 border border-cyan-500/50 text-cyan-400 px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+          <button
+            onClick={() => setIsExportOpen(true)}
+            className="bg-cyan-600/20 hover:bg-cyan-600/40 border border-cyan-500/50 text-cyan-400 px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+          >
             Export Intel
           </button>
         </div>
@@ -124,6 +128,12 @@ function DashboardContent() {
         </div>
 
       </main>
+
+      <ExportModal
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        data={data}
+      />
     </div>
   );
 }

@@ -93,6 +93,7 @@ export function VoiceAssistantProvider({ children }: { children: React.ReactNode
         // Prefer a natural-sounding voice (Google voices are usually best)
         const preferredVoice = availableVoices.find(
           (voice) =>
+            (voice.lang.includes('IN') || voice.name.includes('India') || voice.name.includes('Hindi')) ||
             voice.name.includes('Google') ||
             voice.name.includes('Samantha') ||
             voice.name.includes('Karen') ||

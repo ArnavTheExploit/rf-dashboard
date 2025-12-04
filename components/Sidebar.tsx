@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 const navItems = [
   {
@@ -53,53 +54,82 @@ const navItems = [
       </svg>
     )
   },
+  {
+    name: 'About Us', path: '/about', icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+      </svg>
+    )
+  }
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-20 md:w-64 bg-[#0a0a0a] border-r border-slate-800 flex flex-col z-50 transition-all duration-300">
-      {/* Logo Area */}
-      <div className="h-20 flex items-center justify-center md:justify-start md:px-6 border-b border-slate-800 bg-linear-to-b from-slate-900 to-transparent">
-        <div className="w-10 h-10 bg-linear-to-br from-cyan-900 to-slate-900 rounded-lg border border-cyan-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-          <span className="text-cyan-400 font-bold text-xl">V</span>
-        </div>
-        <span className="hidden md:block ml-3 font-bold text-lg tracking-widest text-slate-200 uppercase">VantEdge</span>
-      </div>
+    <>
+      <button
+        onClick={onToggle}
+        className={`fixed top-8 z-[60] p-2 bg-slate-900 border border-slate-700 rounded-lg text-cyan-400 hover:text-cyan-300 transition-all duration-300 ${isOpen ? 'left-64 ml-4' : 'left-6'}`}
+      >
+        {isOpen ? (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        )}
+      </button>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-6 space-y-2 px-2">
-        {navItems.map((item) => {
-          const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
-          return (
-            <Link
-              key={item.path}
-              href={item.path}
-              className={`flex items-center justify-center md:justify-start px-4 py-3 rounded-lg transition-all duration-300 group relative overflow-hidden ${isActive
-                ? 'bg-linear-to-rrom-cyan-900/20 to-transparent text-cyan-400 border border-cyan-500/20'
-                : 'text-slate-500 hover:text-slate-200 hover:bg-slate-900/50'
-                }`}
-            >
-              {isActive && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500 shadow-[0_0_10px_cyan]"></div>
-              )}
-              <div className="relative z-10 flex items-center">
-                {item.icon}
-                <span className="hidden md:block ml-3 font-medium tracking-wide">{item.name}</span>
-              </div>
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Footer / Status */}
-      <div className="p-4 border-t border-slate-800 bg-linear-to-t from-slate-900 to-transparent">
-        <div className="flex items-center justify-center md:justify-start gap-3">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_emerald]"></div>
-          <span className="hidden md:block text-xs text-slate-400 uppercase tracking-wider">System Online</span>
+      <aside className={`fixed left-0 top-0 h-screen bg-[#0a0a0a] border-r border-slate-800 flex flex-col z-50 transition-all duration-300 ${isOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full opacity-0 overflow-hidden'}`}>
+        {/* Logo Area */}
+        <div className="h-20 flex items-center justify-start px-6 border-b border-slate-800 bg-linear-to-b from-slate-900 to-transparent">
+          <div className="w-10 h-10 bg-linear-to-br from-cyan-900 to-slate-900 rounded-lg border border-cyan-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.1)] shrink-0">
+            <span className="text-cyan-400 font-bold text-xl">V</span>
+          </div>
+          <span className="ml-3 font-bold text-lg tracking-widest text-slate-200 uppercase whitespace-nowrap">VantEdge</span>
         </div>
-      </div>
-    </aside>
+
+        {/* Navigation */}
+        <nav className="flex-1 py-6 space-y-2 px-2 overflow-y-auto">
+          {navItems.map((item) => {
+            const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
+            return (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={`flex items-center justify-start px-4 py-3 rounded-lg transition-all duration-300 group relative overflow-hidden whitespace-nowrap ${isActive
+                  ? 'bg-linear-to-r from-cyan-900/20 to-transparent text-cyan-400 border border-cyan-500/20'
+                  : 'text-slate-500 hover:text-slate-200 hover:bg-slate-900/50'
+                  }`}
+              >
+                {isActive && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500 shadow-[0_0_10px_cyan]"></div>
+                )}
+                <div className="relative z-10 flex items-center">
+                  {item.icon}
+                  <span className="ml-3 font-medium tracking-wide">{item.name}</span>
+                </div>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Footer / Status */}
+        <div className="p-4 border-t border-slate-800 bg-linear-to-t from-slate-900 to-transparent">
+          <div className="flex items-center justify-start gap-3 whitespace-nowrap">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_emerald] shrink-0"></div>
+            <span className="text-xs text-slate-400 uppercase tracking-wider">System Online</span>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }

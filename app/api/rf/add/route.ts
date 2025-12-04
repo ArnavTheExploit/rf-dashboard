@@ -8,32 +8,37 @@ const DATA_FILE = join(process.cwd(), 'data', 'rf_readings.json');
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
+
     // Read existing data
     const fileContents = readFileSync(DATA_FILE, 'utf-8');
     const data: RFReading[] = JSON.parse(fileContents);
-    
+
     // Create new reading with required fields
     const newReading: RFReading = {
       id: body.id || `ESP32-${Date.now()}`,
       device_id: body.device_id || body.deviceId || 'ESP32-001',
+      device_name: body.device_name || 'Unknown Device',
+      latitude: body.latitude || body.lat || 0,
+      longitude: body.longitude || body.lng || body.lon || 0,
       lat: body.lat || body.latitude || 0,
       lng: body.lng || body.longitude || body.lon || 0,
       rf_dbm: body.rf_dbm || body.rssi || body.RSSI || -100,
       rssi: body.rssi || body.RSSI || body.rf_dbm || -100,
       noise_floor: body.noise_floor || body.noiseFloor || body.noise || -100,
       snr: body.snr || body.SNR || (body.rssi - (body.noise_floor || body.noiseFloor || -100)),
+      signal_strength: body.signal_strength || 0,
       frequency: body.frequency || body.freq || 2412,
       timestamp: body.timestamp || new Date().toISOString(),
       battery: body.battery || body.batteryLevel || undefined,
+      battery_percentage: body.battery_percentage || body.battery || body.batteryLevel || 0,
     };
-    
+
     // Append to array
     data.push(newReading);
-    
+
     // Write back to file
     writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
-    
+
     return NextResponse.json({ success: true, data: newReading }, { status: 201 });
   } catch (error) {
     console.error('Error adding RF reading:', error);

@@ -51,22 +51,34 @@ export function useRFData() {
                 console.warn('Backend unreachable, using mock data');
 
                 // Use mock data as fallback
-                const normalizedMockData = (mockData as any[]).map(item => ({
-                    ...item,
-                    id: item.device_id,
-                    lat: item.latitude,
-                    lng: item.longitude,
-                    battery: item.battery_percentage,
-                    rf_dbm: item.rssi, // Map RSSI to rf_dbm if missing
-                    snr: item.signal_strength ? item.signal_strength / 2 : 0
-                }));
+                const normalizedMockData = (mockData as any[]).map(item => {
+                    const fluctuate = (value: number, range: number) => {
+                        const delta = (Math.random() * range * 2) - range;
+                        return Math.round(value + delta);
+                    };
+
+                    return {
+                        ...item,
+                        id: item.device_id,
+                        lat: item.latitude,
+                        lng: item.longitude,
+                        battery: Math.max(0, Math.min(100, fluctuate(item.battery_percentage, 1))),
+                        rf_dbm: fluctuate(item.rssi, 5), // Map RSSI to rf_dbm if missing
+                        snr: item.signal_strength ? Math.max(0, fluctuate(item.signal_strength, 5) / 2) : 0,
+                        rssi: fluctuate(item.rssi, 5),
+                        noise_floor: fluctuate(item.noise_floor, 2),
+                        signal_strength: Math.max(0, Math.min(100, fluctuate(item.signal_strength, 5))),
+                        timestamp: new Date().toISOString()
+                    };
+                });
                 setData(normalizedMockData as any);
                 setStatus('offline');
             }
         };
 
         fetchData();
-        const interval = setInterval(fetchData, 10000); // Refresh every 10 seconds
+        fetchData();
+        const interval = setInterval(fetchData, 180000); // Refresh every 3 minutes
 
         return () => {
             mounted = false;

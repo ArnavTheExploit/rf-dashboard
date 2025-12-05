@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import StatsPanel from '@/components/StatsPanel';
 import { useRFData } from '@/hooks/useRFData';
@@ -32,9 +32,13 @@ function DashboardContent() {
     frequency: 'Frequency'
   };
 
-  const handleExplainStats = () => {
+  // Track previous fetch timestamp to detect updates
+  const prevFetchRef = useRef<number | null>(null);
+  const { lastFetch } = useRFData();
+
+  const handleExplainStats = (isAuto = false) => {
     if (data.length === 0) {
-      speak('No data available to explain.');
+      if (!isAuto) speak('No data available to explain.');
       return;
     }
 
@@ -42,8 +46,10 @@ function DashboardContent() {
     const avgNoise = data.reduce((acc, curr) => acc + curr.noise_floor, 0) / data.length;
     const avgSnr = data.reduce((acc, curr) => acc + (curr.snr || (curr.rssi - curr.noise_floor)), 0) / data.length;
 
+    const intro = isAuto ? "New data received. Here is the updated status." : "Current RF statistics overview.";
+
     const explanation = `
-      Current RF statistics overview. 
+      ${intro}
       ${generateExplanation('rssi_trend', { avgRssi })}
       ${generateExplanation('noise_floor', { noiseFloor: avgNoise })}
       ${generateExplanation('snr', { snr: avgSnr })}
@@ -51,6 +57,19 @@ function DashboardContent() {
     `;
     speak(explanation);
   };
+
+  // Auto-explain when data updates
+  useEffect(() => {
+    if (lastFetch && prevFetchRef.current !== lastFetch && data.length > 0) {
+      // Skip the very first load if desired, or explain it too. 
+      // Assuming we want to explain every update including the first one if it's "fresh"
+      // But to avoid annoyance on page reload, maybe only if it's an update?
+      // The user said "keep on changing... make the AI voice explain".
+      // Let's explain every time.
+      handleExplainStats(true);
+      prevFetchRef.current = lastFetch;
+    }
+  }, [lastFetch, data]);
 
   const handleExplainMap = () => {
     if (data.length === 0) {
